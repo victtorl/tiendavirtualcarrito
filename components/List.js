@@ -1,0 +1,89 @@
+import React,{useState,useEffect} from 'react'
+import {connect} from 'react-redux'
+import store from './store'
+
+const List=({productos,agregarAlCarrito,quitarDelAlCarrito})=>{
+
+    const [datos,SetDatos]=useState([])
+
+    useEffect(()=>{
+      obtenerDatos()
+
+    },[])
+
+    
+    
+    const obtenerDatos=async()=>{
+      const data =await fetch('http://localhost:3001/productos')
+      const products=await data.json()
+     console.log(products)
+      SetDatos(products)
+      llenarDatos(products)
+       
+    }
+
+
+
+
+
+    return(
+        <div className="card-group">
+            {
+                    productos.map(u=>(
+                        <li className="list-group-item list-group-item-active" key={u.id}>
+                           
+                            <div className="card text-white bg-dark mb-3" style={{width: '18rem'} } >
+                                <div className="card-body">
+                                <h5 className="card-title">{u.nombre}</h5>
+                                <p className="card-text">{u.descripcion}</p>
+                                <p className="card-text">precio:    ${u.precio_venta}</p>
+                                </div>
+                              
+                                <div className="card-body">
+                                <button type="button" className="btn btn-success" onClick={()=>agregarAlCarrito(u)} >Agregar</button>
+                                </div>
+                            </div>
+
+                            
+
+                        </li>
+                    ))
+            }
+        </div>
+    )
+}
+
+
+const llenarDatos=(data)=>{
+    const action={
+        type:'ADD_TODO',
+        payload:data
+    }
+    store.dispatch(action)
+    console.log('haz algo ')
+}
+
+
+const mapStateToProps = state=>({
+    productos:state.productos
+
+})
+
+const mapDispatchToProps =dispatch=>({
+    agregarAlCarrito(item){
+        dispatch({
+            type:'ADD_TO_CARRITO',
+            payload:item
+        })
+    },
+    quitarDelAlCarrito(item){
+        dispatch({
+            type:'SAFA_DEL_CARRO',
+            payload:item
+        })
+    }
+ 
+
+})
+
+export default  connect(mapStateToProps, mapDispatchToProps)( List);
