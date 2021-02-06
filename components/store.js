@@ -7,6 +7,7 @@ import thunk from 'redux-thunk'
 const initialState={
     productos:[],
     pedido:[],
+    aux:[],
     total:[0]
     
 }
@@ -22,13 +23,21 @@ switch(action.type){
    case 'ADD_TO_CARRITO':
         return{
             ...state,
-            productos:state.productos.filter(m => m.id !== action.payload.id),
-              pedido:state.pedido.concat(action.payload),
+            // productos:state.productos.filter(m => {m.id !== action.payload.id}),
+              
+              pedido:action.payload.cartItems,
 
             total:state.total.concat(action.payload.precio_venta)
 
 
-        }     
+        }
+    case 'UPDATE_CANTIDAD':
+        return{
+                ...state,
+              aux:state.pedido.splice(state.pedido.findIndex(m=>m.id==action.payload.id),1),
+              
+              pedido:state.pedido.concat(action.payload)
+            }                  
     case 'SAFA_DEL_CARRO':
          return{
             ...state,

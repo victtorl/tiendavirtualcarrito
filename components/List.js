@@ -2,7 +2,7 @@ import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 import store from './store'
 
-const List=({productos,agregarAlCarrito,quitarDelAlCarrito})=>{
+const List=({productos,pedido,agregarAlCarrito,quitarDelAlCarrito})=>{
 
     const [datos,SetDatos]=useState([])
 
@@ -16,7 +16,7 @@ const List=({productos,agregarAlCarrito,quitarDelAlCarrito})=>{
     const obtenerDatos=async()=>{
       const data =await fetch('http://localhost:3001/productos')
       const products=await data.json()
-     console.log(products)
+    //  console.log(products)
       SetDatos(products)
       llenarDatos(products)
        
@@ -40,7 +40,7 @@ const List=({productos,agregarAlCarrito,quitarDelAlCarrito})=>{
                                 </div>
                               
                                 <div className="card-body">
-                                <button type="button" className="btn btn-success" onClick={()=>agregarAlCarrito(u)} >Agregar</button>
+                                <button type="button" className="btn btn-success" onClick={()=>agregarAlCarrito(u,pedido)} >Agregar</button>
                                 </div>
                             </div>
 
@@ -60,21 +60,35 @@ const llenarDatos=(data)=>{
         payload:data
     }
     store.dispatch(action)
-    console.log('haz algo ')
+    // console.log('haz algo ')
 }
 
 
 const mapStateToProps = state=>({
-    productos:state.productos
+    productos:state.productos,
+    pedido:state.pedido
 
 })
-
+var cant=1
 const mapDispatchToProps =dispatch=>({
-    agregarAlCarrito(item){
-        dispatch({
-            type:'ADD_TO_CARRITO',
-            payload:item
-        })
+    agregarAlCarrito(item,pedido){
+
+            const cartItems=pedido.slice();
+            let alreadyExist=false;
+            cartItems.forEach(x => {
+                if(x.id===item.id){
+                    alreadyExist=true;
+                    x.count++;
+                }
+            });
+            if(!alreadyExist){
+                cartItems.push({...item,count:1})
+            }
+            dispatch({
+                        type:'ADD_TO_CARRITO',
+                        payload:{cartItems}
+                     }) 
+            
     },
     quitarDelAlCarrito(item){
         dispatch({
