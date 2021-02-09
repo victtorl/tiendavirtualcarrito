@@ -69,7 +69,6 @@ const mapStateToProps = state=>({
     pedido:state.pedido
 
 })
-var cant=1
 const mapDispatchToProps =dispatch=>({
     agregarAlCarrito(item,pedido){
 
@@ -90,14 +89,7 @@ const mapDispatchToProps =dispatch=>({
                      }) 
             
     },
-    quitarDelAlCarrito(item){
-        dispatch({
-            type:'SAFA_DEL_CARRO',
-            payload:item
-        })
-    }
- 
-
+   
 })
 
 export default  connect(mapStateToProps, mapDispatchToProps)( List);

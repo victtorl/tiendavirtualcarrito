@@ -1,22 +1,12 @@
 import React,{useState,useEffect} from 'react'
 import {connect} from 'react-redux'
 
-const Carrito=({pedido,total,agregarCantidad,quitarCantidad})=>{
+const Carrito=({pedido,total,agregarCantidad,quitarCantidad,quitarProductoCarrito})=>{
 
     const [sumatotal,SetSuma]=useState(0)
 
-            const suma=total.reduce(function(a,b){return a+b})
-     const calcularCantidad=()=>{
-        var matriz = {};
-            pedido.forEach(function(registro) { 
-              var dato = registro.name;
-              matriz[dato] = matriz[dato] ? (matriz[dato] + 1) : 1;
-            });
-            matriz = Object.keys(matriz).map(function(dato) {
-                return { producto: dato, cant: matriz[dato] };
-             });
-            console.log('sadsajksda');
-     }               
+            const suma=pedido.reduce((acum,{precio_venta,count})=>acum +count*precio_venta,0)
+             
             
           
    const solicitarPedido=()=>{
@@ -36,24 +26,29 @@ const Carrito=({pedido,total,agregarCantidad,quitarCantidad})=>{
                                     <th scope="col">PRECIO</th>
                                 </tr>
                                 </thead>
-            {
-                    pedido.map(u=>(
+                {
+                    
+                pedido && pedido.map(u=>(
                        
-                                <tbody >
+                                <tbody  key={u.id}>
+                                  
                                 <tr>
-                                    <th scope="row">#</th>
+                                    <th scope="row">{u.count}</th>
                                     <td>{u.nombre}</td>
                                     <td>{u.descripcion}</td>
                                     <td>{u.precio_venta}</td>
-                                    <button type="button" className="btn btn-success" onClick={()=>agregarCantidad(u)} >+</button>
-                                    <button type="button" className="btn btn-success" onClick={()=>quitarCantidad(u)} >-</button>
-                                    <button type="button" className="btn btn-danger" onClick={()=>agregarAlCarrito(u)} >X</button>
+                                   <td> <button type="button" className="btn btn-success" onClick={()=>agregarCantidad(u,pedido)} >+</button></td>
+                                   <td><button type="button" className="btn btn-success" onClick={()=>quitarCantidad(u,pedido)} >-</button></td>
+                                   <td><button type="button" className="btn btn-danger" onClick={()=>quitarProductoCarrito(u,pedido)} >X</button></td>
                                 </tr>
+                                     
                                 </tbody>
                                    
                         
                     ))
-            }
+                    
+                }
+            
         </table>
         <p>TOTAL A PAGAR  :${suma}</p> 
         <button type="button" className="btn btn-success" onClick={()=>solicitarPedido()} >Solicitar pedido</button>
@@ -70,23 +65,45 @@ const mapStateToProps = state=>({
 })
 
 const mapDispatchToProps =dispatch=>({
-    agregarCantidad(item){
+    agregarCantidad(item,pedido){
+        const cartItems=pedido.slice();
+        let alreadyExist=false;
+        cartItems.forEach(x => {
+            if(x.id===item.id){
+                alreadyExist=true;
+                x.count++;
+            }
+        });
         dispatch({
-            type:'ADD_UNO_MAS',
-            payload:item
-        })
+                    type:'ADD_TO_CARRITO',
+                    payload:{cartItems}
+                 }) 
     },
-    quitarCantidad(item){
+    quitarCantidad(item,pedido){
+        const cartItems=pedido.slice();
+       
+        cartItems.forEach(x => {
+            if(x.id===item.id){
+                x.count--;
+                x.count==0 ? x.count=1:0
+            }
+        });
         dispatch({
-            type:'DELETE_UNO_MENOS',
-            payload:item
-        })
+            type:'DISMINUIR_CANTIDAD',
+            payload:{cartItems}
+         }) 
+      
+        
     },
-    solicitarPedido(pedido){
-        dispatch({
-            type:'SOLICITAR_PEDIDO',
-            payload:pedido
-        })
+    quitarProductoCarrito(item,pedido){
+        const cartItems=pedido.slice().filter(
+            x=>x.id !==item.id
+        )
+     
+         dispatch({
+             type:'DELETE_TO_CARRITO',
+             payload:cartItems
+         })
     },
 
 })
