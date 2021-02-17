@@ -24,6 +24,7 @@ const Carrito=({pedido,total,agregarCantidad,quitarCantidad,quitarProductoCarrit
                                     <th scope="col">PRODUCTO</th>
                                     <th scope="col">DESCRIPCION</th>
                                     <th scope="col">PRECIO</th>
+                                    
                                 </tr>
                                 </thead>
                 {
